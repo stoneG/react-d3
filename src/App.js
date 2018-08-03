@@ -6,7 +6,7 @@ import './App.css'
 
 class App extends Component {
   state = {
-    ring: 47,
+    ring: 0.47,
   }
 
   getRandomInt = (max) => {
@@ -25,9 +25,9 @@ class App extends Component {
 
     return (
       <div className="container">
-        <h1 className="title">CAM d3 d3mo</h1>
+        <h1 className="title">React & d3 d3mo</h1>
         <Ring angle={ring} />
-        <p onClick={this.randomize.bind(this, 'ring')}>Randomize Data</p>
+        <button onClick={this.randomize.bind(this, 'ring')}>Randomize Data</button>
       </div>
     )
   }
