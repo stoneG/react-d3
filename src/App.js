@@ -1,21 +1,36 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react'
+
+import Ring from './components/Ring'
+
+import './App.css'
 
 class App extends Component {
+  state = {
+    ring: 47,
+  }
+
+  getRandomInt = (max) => {
+    return Math.ceiling(Math.random() * 100)
+  }
+
+  randomize = (component) => {
+    switch (component) {
+      case 'ring':
+        this.setState({ ring: Math.random() })
+    }
+  }
+
   render() {
+    const { ring } = this.state
+
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+      <div className="container">
+        <h1 className="title">CAM d3 d3mo</h1>
+        <Ring angle={ring} />
+        <p onClick={this.randomize.bind(this, 'ring')}>Randomize Data</p>
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App

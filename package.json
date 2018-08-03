@@ -4,10 +4,12 @@
   "private": true,
   "dependencies": {
     "d3": "^5.5.0",
+    "normalize.css": "^8.0.0",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-faux-dom": "^4.2.0",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "typeface-roboto": "0.0.54"
   },
   "scripts": {
     "start": "react-scripts start",
