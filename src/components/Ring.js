@@ -31,10 +31,21 @@ class Ring extends Component {
       .style('fill', '#46ACC2')
       .attr('d', this.arc)
 
+    const value = g.append('text')
+      .datum({ endAngle: angle })
+      .attr('text-anchor', 'middle')
+      .attr('y', 20)
+      .style('font-family', 'Roboto')
+      .style('font-size', 60)
+      .text(d3.format('.0%')(angle))
+
     this.changeAngle = (newAngle) => {
       foreground.transition()
           .duration(750)
           .attrTween('d', this.arcTween(newAngle * tau))
+      value.transition()
+          .duration(750)
+          .tween('text', this.textTween(newAngle))
       this.props.animateFauxDOM(2000)
     }
   }
@@ -52,11 +63,21 @@ class Ring extends Component {
     .startAngle(0)
 
   arcTween(newAngle) {
-    return (d) => {
-      var interpolate = d3.interpolate(d.endAngle, newAngle)
+    return d => {
+      const interpolate = d3.interpolate(d.endAngle, newAngle)
       return (t) => {
         d.endAngle = interpolate(t)
         return this.arc(d)
+      }
+    }
+  }
+
+  textTween(newAngle) {
+    return function(d) {
+      const node = this
+      const interpolate = d3.interpolate(d.endAngle, newAngle)
+      return function(t) {
+        d3.select(node).text(d3.format('.0%')(interpolate(t)))
       }
     }
   }

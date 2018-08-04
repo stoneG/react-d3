@@ -27,6 +27,7 @@ class App extends Component {
           this.ringStream = setInterval(this.setRandomStream(component, 0, 1, true), 1000)
         } else {
           clearInterval(this.ringStream)
+          this.ringStream = undefined
         }
     }
   }
