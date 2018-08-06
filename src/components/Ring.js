@@ -27,7 +27,7 @@ class Ring extends Component {
 
     const background = g.append('path')
       .datum({ endAngle: tau })
-      .style('fill', '#ddd')
+      .style('fill', '#eee')
       .attr('d', this.arc)
 
     const foreground = g.append('path')

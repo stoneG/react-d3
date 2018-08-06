@@ -27,7 +27,7 @@ class Speedometer extends Component {
 
     const background = g.append('path')
       .datum({ startAngle: -0.65 * Math.PI, endAngle: tau })
-      .style('fill', '#ddd')
+      .style('fill', '#eee')
       .attr('d', this.arc)
 
     const foreground = g.append('path')
