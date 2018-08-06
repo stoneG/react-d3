@@ -5,13 +5,17 @@ import ReactFauxDOM, { withFauxDOM } from 'react-faux-dom'
 import '../styles/Ring.css'
 
 class Ring extends Component {
+  static defaultProps = {
+    size: 400,
+  }
 
   componentDidMount() {
-    const { angle } = this.props
+    const { angle, size } = this.props
+
+    const width = size
+    const height= size
 
     const faux = this.props.connectFauxDOM('div', 'chart')
-    const width = 400
-    const height = 400
 
     const tau = 2 * Math.PI
     const svg = d3.select(faux)
@@ -34,9 +38,9 @@ class Ring extends Component {
     const value = g.append('text')
       .datum({ endAngle: angle })
       .attr('text-anchor', 'middle')
-      .attr('y', 20)
+      .attr('y', width / 20 )
       .style('font-family', 'Roboto')
-      .style('font-size', 60)
+      .style('font-size', width / 6.666666667)
       .text(d3.format('.0%')(angle))
 
     this.changeAngle = (newAngle) => {
@@ -58,8 +62,8 @@ class Ring extends Component {
   }
 
   arc = d3.arc()
-    .innerRadius(100)
-    .outerRadius(140)
+    .innerRadius(this.props.size / 4)
+    .outerRadius(this.props.size / 2.857142857)
     .startAngle(0)
 
   arcTween(newAngle) {
@@ -77,7 +81,8 @@ class Ring extends Component {
       const node = this
       const interpolate = d3.interpolate(d.endAngle, newAngle)
       return function(t) {
-        d3.select(node).text(d3.format('.0%')(interpolate(t)))
+        d.endAngle = interpolate(t)
+        d3.select(node).text(d3.format('.0%')(d.endAngle))
       }
     }
   }
