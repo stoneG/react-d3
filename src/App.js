@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import Ring from './components/Ring'
 import Speedometer from './components/Speedometer'
+import MultipleSpeedometer from './components/MultipleSpeedometer'
 
 import './App.css'
 
@@ -15,6 +16,10 @@ class App extends Component {
     speed: 0.39,
     speed2: 0.59,
     speed3: 0.44,
+
+    mspeed: 0.42,
+    mspeed2: 0.55,
+    mspeed3: 0.49,
   }
 
   getRandomInt = (max) => {
@@ -40,6 +45,7 @@ class App extends Component {
   render() {
     const { ring, ring2, ring3 } = this.state
     const { speed, speed2, speed3 } = this.state
+    const { mspeed, mspeed2, mspeed3 } = this.state
 
     return (
       <div className="container">
@@ -70,6 +76,20 @@ class App extends Component {
           <div className="viz-container">
             <Speedometer angle={speed3} size={200} />
             <button onClick={this.toggleStream.bind(this, 'speed3')}>Toggle Data Stream</button>
+          </div>
+        </div>
+        <div className="viz-type">
+          <div className="viz-container">
+            <MultipleSpeedometer angle={mspeed} size={200} />
+            <button onClick={this.toggleStream.bind(this, 'mspeed')}>Toggle Data Stream</button>
+          </div>
+          <div className="viz-container">
+            <MultipleSpeedometer angle={mspeed2} size={200} />
+            <button onClick={this.toggleStream.bind(this, 'mspeed2')}>Toggle Data Stream</button>
+          </div>
+          <div className="viz-container">
+            <MultipleSpeedometer angle={mspeed3} size={200} />
+            <button onClick={this.toggleStream.bind(this, 'mspeed3')}>Toggle Data Stream</button>
           </div>
         </div>
       </div>

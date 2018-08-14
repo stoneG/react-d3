@@ -2,9 +2,7 @@ import React, { Component } from 'react'
 import * as d3 from 'd3'
 import ReactFauxDOM, { withFauxDOM } from 'react-faux-dom'
 
-import '../styles/Ring.css'
-
-class Ring extends Component {
+class Speedometer extends Component {
   static defaultProps = {
     size: 400,
   }
@@ -17,7 +15,7 @@ class Ring extends Component {
 
     const faux = this.props.connectFauxDOM('div', 'chart')
 
-    const tau = 2 * Math.PI
+    const tau = 0.65 * Math.PI
     const svg = d3.select(faux)
       .append('svg')
       .attr('width', width)
@@ -26,19 +24,21 @@ class Ring extends Component {
     const g = svg.append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
 
     const background = g.append('path')
-      .datum({ endAngle: tau })
+      .datum({ startAngle: -0.65 * Math.PI, endAngle: tau })
       .style('fill', '#eee')
       .attr('d', this.arc)
 
     const foreground = g.append('path')
-      .datum({ endAngle: angle * tau })
-      .style('fill', '#547AA5')
+      .datum({ startAngle: -0.65 * Math.PI, endAngle: (angle * 1.3 * Math.PI) + (-0.65 * Math.PI) })
+      // .datum({ startAngle: -0.65 * Math.PI, endAngle: 0.01 })
+      .style('fill', '#4381C1')
+      // BEA2C2
       .attr('d', this.arc)
 
     const value = g.append('text')
       .datum({ endAngle: angle })
       .attr('text-anchor', 'middle')
-      .attr('y', width / 20 )
+      .attr('y', width / 5 )
       .style('font-family', 'Roboto')
       .style('font-size', width / 6.666666667)
       .text(d3.format('.0%')(angle))
@@ -46,7 +46,7 @@ class Ring extends Component {
     this.changeAngle = (newAngle) => {
       foreground.transition()
           .duration(750)
-          .attrTween('d', this.arcTween(newAngle * tau))
+          .attrTween('d', this.arcTween(newAngle * 1.3 * Math.PI))
       value.transition()
           .duration(750)
           .tween('text', this.textTween(newAngle))
@@ -64,11 +64,10 @@ class Ring extends Component {
   arc = d3.arc()
     .innerRadius(this.props.size / 4)
     .outerRadius(this.props.size / 2.857142857)
-    .startAngle(0)
 
   arcTween(newAngle) {
     return d => {
-      const interpolate = d3.interpolate(d.endAngle, newAngle)
+      const interpolate = d3.interpolate(d.endAngle, newAngle - 0.65 * Math.PI)
       return (t) => {
         d.endAngle = interpolate(t)
         return this.arc(d)
@@ -94,4 +93,4 @@ class Ring extends Component {
   }
 }
 
-export default withFauxDOM(Ring)
+export default withFauxDOM(Speedometer)
