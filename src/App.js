@@ -80,15 +80,15 @@ class App extends Component {
         </div>
         <div className="viz-type">
           <div className="viz-container">
-            <MultipleSpeedometer angle={mspeed} size={200} />
+            <MultipleSpeedometer total={mspeed} portion={mspeed * 0.65} size={200} />
             <button onClick={this.toggleStream.bind(this, 'mspeed')}>Toggle Data Stream</button>
           </div>
           <div className="viz-container">
-            <MultipleSpeedometer angle={mspeed2} size={200} />
+            <MultipleSpeedometer total={mspeed2} portion={mspeed2 * 0.45} size={200} />
             <button onClick={this.toggleStream.bind(this, 'mspeed2')}>Toggle Data Stream</button>
           </div>
           <div className="viz-container">
-            <MultipleSpeedometer angle={mspeed3} size={200} />
+            <MultipleSpeedometer total={mspeed3} portion={mspeed3 * 0.8} size={200} />
             <button onClick={this.toggleStream.bind(this, 'mspeed3')}>Toggle Data Stream</button>
           </div>
         </div>

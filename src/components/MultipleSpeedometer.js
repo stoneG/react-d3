@@ -8,14 +8,13 @@ class Speedometer extends Component {
   }
 
   componentDidMount() {
-    const { angle, size } = this.props
+    const { total, portion, size } = this.props
 
     const width = size
     const height= size
 
     const faux = this.props.connectFauxDOM('div', 'chart')
 
-    const tau = 0.65 * Math.PI
     const svg = d3.select(faux)
       .append('svg')
       .attr('width', width)
@@ -24,40 +23,46 @@ class Speedometer extends Component {
     const g = svg.append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
 
     const background = g.append('path')
-      .datum({ startAngle: -0.65 * Math.PI, endAngle: tau })
+      .datum({ startAngle: this.toAngle(0), endAngle: this.toAngle(1) })
       .style('fill', '#eee')
       .attr('d', this.arc)
 
-    const foreground = g.append('path')
-      .datum({ startAngle: -0.65 * Math.PI, endAngle: (angle * 1.3 * Math.PI) + (-0.65 * Math.PI) })
-      // .datum({ startAngle: -0.65 * Math.PI, endAngle: 0.01 })
-      .style('fill', '#4381C1')
-      // BEA2C2
+    const totalPath = g.append('path')
+      .datum({ startAngle: this.toAngle(0), endAngle: this.toAngle(total) })
+      .style('fill', '#B3BFB8')
+      .attr('d', this.arc)
+
+    const portionPath = g.append('path')
+      .datum({ startAngle: this.toAngle(0), endAngle: this.toAngle(portion) })
+      .style('fill', '#7E8D85')
       .attr('d', this.arc)
 
     const value = g.append('text')
-      .datum({ endAngle: angle })
+      .datum({ endAngle: total })
       .attr('text-anchor', 'middle')
-      .attr('y', width / 5 )
+      .attr('y', width / 17 )
       .style('font-family', 'Roboto')
       .style('font-size', width / 6.666666667)
-      .text(d3.format('.0%')(angle))
+      .text(d3.format('.0%')(total))
 
-    this.changeAngle = (newAngle) => {
-      foreground.transition()
+    this.changeAngle = (newTotal, newPortion) => {
+      totalPath.transition()
           .duration(750)
-          .attrTween('d', this.arcTween(newAngle * 1.3 * Math.PI))
+          .attrTween('d', this.arcTween(this.toAngle(newTotal)))
+      portionPath.transition()
+          .duration(750)
+          .attrTween('d', this.arcTween(this.toAngle(newPortion)))
       value.transition()
           .duration(750)
-          .tween('text', this.textTween(newAngle))
+          .tween('text', this.textTween(newTotal))
       this.props.animateFauxDOM(2000)
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { angle } = this.props
-    if (prevProps.angle != angle) {
-      this.changeAngle(angle)
+    const { total, portion } = this.props
+    if (prevProps.total != total || prevProps.portion != portion) {
+      this.changeAngle(total, portion)
     }
   }
 
@@ -65,9 +70,13 @@ class Speedometer extends Component {
     .innerRadius(this.props.size / 4)
     .outerRadius(this.props.size / 2.857142857)
 
+  toAngle(percent) {
+    return (percent * 1.35 * Math.PI) + (-0.85 * Math.PI)
+  }
+
   arcTween(newAngle) {
     return d => {
-      const interpolate = d3.interpolate(d.endAngle, newAngle - 0.65 * Math.PI)
+      const interpolate = d3.interpolate(d.endAngle, newAngle)
       return (t) => {
         d.endAngle = interpolate(t)
         return this.arc(d)
