@@ -1,43 +1,49 @@
 import React, { Component } from 'react'
+import _ from 'lodash'
 import * as d3 from 'd3'
 import ReactFauxDOM, { withFauxDOM } from 'react-faux-dom'
 
-class Speedometer extends Component {
+class MultipleSpeedometer extends Component {
   static defaultProps = {
     size: 400,
   }
 
   componentDidMount() {
-    const { total, portion, size } = this.props
+    const { data, size } = this.props
 
     const width = size
     const height= size
+    const total = _.sumBy(data.slice(0, -1), x => x.amount)
 
     const faux = this.props.connectFauxDOM('div', 'chart')
 
+    const colors = ['#7E8D85', '#B3BFB8', '#eee']
+
     const svg = d3.select(faux)
-      .append('svg')
-      .attr('width', width)
-      .attr('height', height)
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+      .append('g')
+        .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
 
-    const g = svg.append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+    const pie = d3.pie()
+      .value(d => d.amount)
+      .sort(null)
 
-    const background = g.append('path')
-      .datum({ startAngle: this.toAngle(0), endAngle: this.toAngle(1) })
-      .style('fill', '#eee')
-      .attr('d', this.arc)
+    let path = svg.datum(data).selectAll('path')
+        .data((a, b, c) => pie(a, b, c).map(this.transfromFromPie))
 
-    const totalPath = g.append('path')
-      .datum({ startAngle: this.toAngle(0), endAngle: this.toAngle(total) })
-      .style('fill', '#B3BFB8')
-      .attr('d', this.arc)
+    path.exit().remove()
 
-    const portionPath = g.append('path')
-      .datum({ startAngle: this.toAngle(0), endAngle: this.toAngle(portion) })
-      .style('fill', '#7E8D85')
-      .attr('d', this.arc)
+    path = path.enter().append('path')
+        .attr('fill', (d, i) => colors[i])
+        .attr('d', (a, b, c) => {
+          return this.arc(a, b, c)
+        })
+        .each(d => { this._current = d })
+      .merge(path)
 
-    const value = g.append('text')
+    const value = svg.append('text')
       .datum({ endAngle: total })
       .attr('text-anchor', 'middle')
       .attr('y', width / 17 )
@@ -45,24 +51,29 @@ class Speedometer extends Component {
       .style('font-size', width / 6.666666667)
       .text(d3.format('.0%')(total))
 
-    this.changeAngle = (newTotal, newPortion) => {
-      totalPath.transition()
-          .duration(750)
-          .attrTween('d', this.arcTween(this.toAngle(newTotal)))
-      portionPath.transition()
-          .duration(750)
-          .attrTween('d', this.arcTween(this.toAngle(newPortion)))
+    this.changeAngle = (newData) => {
+      path = path.datum(newData).data((a, b, c) => pie(a, b, c).map(this.transfromFromPie))
+      // TODO
+      // path.transition()
+      //   .duration(750)
+      //   .attrTween('d', this.arcTween(this.toAngle()))
+      // totalPath.transition()
+      //     .duration(750)
+      //     .attrTween('d', this.arcTween(this.toAngle(newTotal)))
+      // portionPath.transition()
+      //     .duration(750)
+      //     .attrTween('d', this.arcTween(this.toAngle(newPortion)))
       value.transition()
           .duration(750)
-          .tween('text', this.textTween(newTotal))
+          .tween('text', this.textTween(_.sumBy(newData.slice(0, -1), d => d.amount)))
       this.props.animateFauxDOM(2000)
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { total, portion } = this.props
-    if (prevProps.total != total || prevProps.portion != portion) {
-      this.changeAngle(total, portion)
+    const { data } = this.props
+    if (!_.isEqual(prevProps.data, data)) {
+      this.changeAngle(data)
     }
   }
 
@@ -72,6 +83,14 @@ class Speedometer extends Component {
 
   toAngle(percent) {
     return (percent * 1.35 * Math.PI) + (-0.85 * Math.PI)
+  }
+
+  transfromFromPie = (data) => {
+    return {
+      ...data,
+      startAngle: this.toAngle(data.startAngle / (2 * Math.PI)),
+      endAngle: this.toAngle(data.endAngle / (2 * Math.PI)),
+    }
   }
 
   arcTween(newAngle) {
@@ -102,4 +121,4 @@ class Speedometer extends Component {
   }
 }
 
-export default withFauxDOM(Speedometer)
+export default withFauxDOM(MultipleSpeedometer)

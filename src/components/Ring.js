@@ -38,7 +38,7 @@ class Ring extends Component {
     const value = g.append('text')
       .datum({ endAngle: angle })
       .attr('text-anchor', 'middle')
-      .attr('y', width / 20 )
+      .attr('y', width / 17 )
       .style('font-family', 'Roboto')
       .style('font-size', width / 6.666666667)
       .text(d3.format('.0%')(angle))

@@ -17,9 +17,9 @@ class App extends Component {
     speed2: 0.59,
     speed3: 0.44,
 
-    mspeed: 0.42,
-    mspeed2: 0.55,
-    mspeed3: 0.49,
+    mspeed: [{ name: 'kiki', amount: 0.42}, { name: 'other', amount: 0.18 }, { name: 'remaining', amount: 0.4 }],
+    mspeed2: [{ name: 'kb', amount: 0.4}, { name: 'other', amount: 0.15 }, { name: 'remaining', amount: 0.45 }],
+    mspeed3: [{ name: 'resha', amount: 0.3}, { name: 'other', amount: 0.19 }, { name: 'remaining', amount: 0.51 }],
   }
 
   getRandomInt = (max) => {
@@ -32,10 +32,36 @@ class App extends Component {
     }
   }
 
+  setMSpeed = (component) => {
+    const names = ['kiki', 'kb', 'resha', 'jt']
+    return () => {
+      const rand = Math.random()
+      if (rand < 0.75) {
+        this.setState(({ [component]: [oldLady] }) => {
+          const lady = { ...oldLady, amount: _.random(0.2, 0.3, true) }
+          const other = { name: 'other', amount: _.random(0.2, 0.3, true) }
+          const remaining = { name: 'remaining', amount: 1 - lady.amount - other.amount }
+          return { [component]: [lady, other, remaining] }
+        })
+      } else {
+        this.setState(() => {
+          const lady = { name: _.sample(names), amount: _.random(0.2, 0.3, true) }
+          const other = { name: 'other', amount: _.random(0.2, 0.3, true) }
+          const remaining = { name: 'remaining', amount: 1 - lady.amount - other.amount }
+          return { [component]: [lady, other, remaining] }
+        })
+      }
+    }
+  }
+
   toggleStream = (component) => {
     const intervalId = `${component}Stream`
     if (!this[intervalId]) {
-      this[intervalId] = setInterval(this.setRandomStream(component, 0.4, 0.6, true), 1000)
+      if (_.startsWith(component, 'mspeed')) {
+        this[intervalId] = setInterval(this.setMSpeed(component), 1000)
+      } else {
+        this[intervalId] = setInterval(this.setRandomStream(component, 0.4, 0.6, true), 1000)
+      }
     } else {
       clearInterval(this[intervalId])
       this[intervalId] = undefined
@@ -80,15 +106,15 @@ class App extends Component {
         </div>
         <div className="viz-type">
           <div className="viz-container">
-            <MultipleSpeedometer total={mspeed} portion={mspeed * 0.65} size={200} />
+            <MultipleSpeedometer data={mspeed} size={200} />
             <button onClick={this.toggleStream.bind(this, 'mspeed')}>Toggle Data Stream</button>
           </div>
           <div className="viz-container">
-            <MultipleSpeedometer total={mspeed2} portion={mspeed2 * 0.45} size={200} />
+            <MultipleSpeedometer data={mspeed2} size={200} />
             <button onClick={this.toggleStream.bind(this, 'mspeed2')}>Toggle Data Stream</button>
           </div>
           <div className="viz-container">
-            <MultipleSpeedometer total={mspeed3} portion={mspeed3 * 0.8} size={200} />
+            <MultipleSpeedometer data={mspeed3} size={200} />
             <button onClick={this.toggleStream.bind(this, 'mspeed3')}>Toggle Data Stream</button>
           </div>
         </div>
