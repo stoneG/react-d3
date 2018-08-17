@@ -30,18 +30,16 @@ class MultipleSpeedometer extends Component {
       .value(d => d.amount)
       .sort(null)
 
-    let path = svg.datum(data).selectAll('path')
-        .data((a, b, c) => pie(a, b, c).map(this.transfromFromPie))
-
-    path.exit().remove()
+    let path = svg.datum(data).selectAll('path').data(
+          (...args) => pie(...args).map(this.transfromFromPie),
+          d => d.data.name
+        )
 
     path = path.enter().append('path')
         .attr('fill', (d, i) => colors[i])
-        .attr('d', (a, b, c) => {
-          return this.arc(a, b, c)
+        .attr('d', (...args) => {
+          return this.arc(...args)
         })
-        .each(d => { this._current = d })
-      .merge(path)
 
     const value = svg.append('text')
       .datum({ endAngle: total })
@@ -51,21 +49,30 @@ class MultipleSpeedometer extends Component {
       .style('font-size', width / 6.666666667)
       .text(d3.format('.0%')(total))
 
-    this.changeAngle = (newData) => {
-      path = path.datum(newData).data((a, b, c) => pie(a, b, c).map(this.transfromFromPie))
-      // TODO
-      // path.transition()
-      //   .duration(750)
-      //   .attrTween('d', this.arcTween(this.toAngle()))
-      // totalPath.transition()
-      //     .duration(750)
-      //     .attrTween('d', this.arcTween(this.toAngle(newTotal)))
-      // portionPath.transition()
-      //     .duration(750)
-      //     .attrTween('d', this.arcTween(this.toAngle(newPortion)))
+    this.changeAngle = (newData, oldData) => {
+      let path = svg.datum(newData).selectAll('path')
+        .data(
+          (...args) => pie(...args).map(this.transfromFromPie),
+          d => d.data.name
+        )
+
+      path = path.enter().append('path')
+          .attr('fill', (d, i) => colors[i])
+          .attr('d', (...args) => {
+            return this.arc(...args)
+          })
+        .merge(path)
+
+      path.exit().remove()
+
+      path.transition()
+        .duration(750)
+        .attrTween('d', this.arcTween(pie(oldData).map(this.transfromFromPie)))
+
       value.transition()
           .duration(750)
           .tween('text', this.textTween(_.sumBy(newData.slice(0, -1), d => d.amount)))
+
       this.props.animateFauxDOM(2000)
     }
   }
@@ -73,7 +80,7 @@ class MultipleSpeedometer extends Component {
   componentDidUpdate(prevProps) {
     const { data } = this.props
     if (!_.isEqual(prevProps.data, data)) {
-      this.changeAngle(data)
+      this.changeAngle(data, prevProps.data)
     }
   }
 
@@ -93,12 +100,11 @@ class MultipleSpeedometer extends Component {
     }
   }
 
-  arcTween(newAngle) {
-    return d => {
-      const interpolate = d3.interpolate(d.endAngle, newAngle)
+  arcTween(oldData) {
+    return (d, i) => {
+      const interpolate = d3.interpolate(oldData[i], d)
       return (t) => {
-        d.endAngle = interpolate(t)
-        return this.arc(d)
+        return this.arc(interpolate(t))
       }
     }
   }
